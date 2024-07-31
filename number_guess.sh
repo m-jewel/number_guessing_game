@@ -3,11 +3,15 @@
 # Set the PSQL variable for querying the database
 PSQL="psql --username=freecodecamp --dbname=number_guess -t --no-align -c"
 
-# Create the database and table if they do not exist
-psql --username=freecodecamp --dbname=postgres <<EOF
-CREATE DATABASE number_guess;
+# Create the database if it does not exist
+DB_EXISTS=$(psql --username=freecodecamp --dbname=postgres -t --no-align -c "SELECT 1 FROM pg_database WHERE datname='number_guess'")
+if [[ -z $DB_EXISTS ]]; then
+  psql --username=freecodecamp --dbname=postgres <<EOF
+  CREATE DATABASE number_guess;
 EOF
+fi
 
+# Create the table if it does not exist
 psql --username=freecodecamp --dbname=number_guess <<EOF
 CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(22) UNIQUE,
@@ -89,4 +93,3 @@ while true; do
     break
   fi
 done
-
