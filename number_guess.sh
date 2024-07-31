@@ -26,7 +26,7 @@ get_user_details() {
 # Function to insert new user
 insert_new_user() {
   USERNAME=$1
-  $($PSQL "INSERT INTO users(username) VALUES('$USERNAME')")
+  $PSQL "INSERT INTO users(username) VALUES('$USERNAME')"
 }
 
 # Function to update user stats
@@ -34,7 +34,7 @@ update_user_stats() {
   USERNAME=$1
   GAMES_PLAYED=$2
   BEST_GAME=$3
-  $($PSQL "UPDATE users SET games_played=$GAMES_PLAYED, best_game=$BEST_GAME WHERE username='$USERNAME'")
+  $PSQL "UPDATE users SET games_played=$GAMES_PLAYED, best_game=$BEST_GAME WHERE username='$USERNAME'"
 }
 
 # Prompt for username
