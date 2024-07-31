@@ -3,15 +3,11 @@
 # Set the PSQL variable for querying the database
 PSQL="psql --username=freecodecamp --dbname=number_guess -t --no-align -c"
 
-# Create the database if it does not exist
-DB_EXISTS=$(psql --username=freecodecamp --dbname=postgres -t --no-align -c "SELECT 1 FROM pg_database WHERE datname='number_guess'")
-if [[ -z $DB_EXISTS ]]; then
-  psql --username=freecodecamp --dbname=postgres <<EOF
-  CREATE DATABASE number_guess;
+# Create the database and table if they do not exist
+psql --username=freecodecamp --dbname=postgres <<EOF
+CREATE DATABASE number_guess;
 EOF
-fi
 
-# Create the table if it does not exist
 psql --username=freecodecamp --dbname=number_guess <<EOF
 CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(22) UNIQUE,
@@ -23,7 +19,7 @@ EOF
 # Function to get user details
 get_user_details() {
   USERNAME=$1
-  USER_DETAILS=$($PSQL "SELECT games_played, COALESCE(best_game, 'NULL') FROM users WHERE username='$USERNAME'")
+  USER_DETAILS=$($PSQL "SELECT games_played, COALESCE(best_game, 0) FROM users WHERE username='$USERNAME'")
   echo $USER_DETAILS
 }
 
@@ -53,7 +49,7 @@ if [[ -z $USER_DETAILS ]]; then
   echo "Welcome, $USERNAME! It looks like this is your first time here."
   insert_new_user $USERNAME
   GAMES_PLAYED=0
-  BEST_GAME=NULL
+  BEST_GAME=0
 else
   # Existing user
   IFS='|' read GAMES_PLAYED BEST_GAME <<< "$USER_DETAILS"
@@ -85,7 +81,7 @@ while true; do
     echo "You guessed it in $NUMBER_OF_GUESSES tries. The secret number was $SECRET_NUMBER. Nice job!"
     ((GAMES_PLAYED++))
 
-    if [[ $BEST_GAME == "NULL" || $NUMBER_OF_GUESSES -lt $BEST_GAME ]]; then
+    if [[ $BEST_GAME -eq 0 || $NUMBER_OF_GUESSES -lt $BEST_GAME ]]; then
       BEST_GAME=$NUMBER_OF_GUESSES
     fi
 
